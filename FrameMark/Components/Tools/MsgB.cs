@@ -2,9 +2,7 @@
 
 namespace FrameMark.Components.Tools
 {
-    /// <summary>
-    /// 为简化代码，将MessageBox封装成一个类
-    /// </summary>
+    /// <summary> 为简化代码，将MessageBox封装成一个类 </summary>
     internal static class MsgB
     {
         public static void OkInfo(string info, string title)
