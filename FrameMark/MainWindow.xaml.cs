@@ -12,7 +12,10 @@ namespace FrameMark
         public MainWindow() => InitializeComponent();
 
         private void MW_KeyDown(object sender, KeyEventArgs e)
-            => Components.Help.Show();
+        {
+            if (e.Key == Key.F1)
+                Components.Help.Show();
+        }
 
         #endregion
 
@@ -80,12 +83,22 @@ namespace FrameMark
 
         private void BtSelectWaterMark_Click(object sender, RoutedEventArgs e)
         {
-            if (Components.Tools.File.Pick(
-                "ICO图像 (*.ico)|*.ico|PNG图像 (*.png)|*.png|所有文件 (*.*)|*.*",
-                out var path))
-                TBWaterMark.Text = path;
+            if (Components.Tools.File.Pick("选择水印图标", out var path))
+                if (Components.Tools.File.IsImage(path))
+                    TBWaterMark.Text = path;
+                else Components.Tools.MsgB.OkInfo("选择的文件不是图片，未使用。", "提示");
         }
 
         #endregion
+
+        private void BtAddFile_Click(object sender, RoutedEventArgs e)
+        {
+            if (Components.Tools.File.MultiPick("选择要处理的图片文件", out var paths))
+            {
+                var imagePaths = Components.Tools.File.FilterImages(paths);
+                foreach (var path in imagePaths)
+                    _ = LBFiles.Items.Add(path);
+            }
+        }
     }
 }

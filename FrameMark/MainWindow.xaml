@@ -240,7 +240,8 @@
             <ListBox
                 x:Name="LBFiles"
                 Grid.Row ="0"
-                Margin="0,13,14,0" />
+                Margin="0,13,14,0"
+                SelectionMode="Multiple" />
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="10" />
@@ -265,6 +266,7 @@
                     VerticalAlignment="Top"
                     Background="#FFE0E0E0"
                     BorderBrush="#FFB8B8B8"
+                    Click="BtAddFile_Click"
                     Content="添加文件" />
                 <Button
                     x:Name="BtRemoveFile"
@@ -276,7 +278,8 @@
                     VerticalAlignment="Top"
                     Background="#FFE0E0E0"
                     BorderBrush="#FFB8B8B8"
-                    Content="移除文件" />
+                    Content="移除文件"
+                    IsEnabled="False" />
                 <Button
                     x:Name="BtRun"
                     Grid.Row ="1"

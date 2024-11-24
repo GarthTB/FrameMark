@@ -36,6 +36,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="14.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Icons\icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
