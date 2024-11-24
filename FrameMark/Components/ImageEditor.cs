@@ -51,11 +51,12 @@ namespace FrameMark.Components
         /// <summary> 生成切去圆角的前景图 </summary>
         private static MagickImage GenerateForeground(MagickImage image, double rcRadius)
         {
-            var mask = new MagickImage(MagickColors.Black, image.Width, image.Height);
-            mask.Settings.FillColor = MagickColors.White;
             var shortSide = Math.Min(image.Width, image.Height);
             var radius = rcRadius / 100 * shortSide;
+            var mask = new MagickImage(new MagickColor(0, 0, 0, 0), image.Width, image.Height);
+            mask.Settings.FillColor = MagickColors.White;
             mask.Draw(new DrawableRoundRectangle(0, 0, image.Width, image.Height, radius, radius));
+            image.Alpha(AlphaOption.Set);
             image.Composite(mask, CompositeOperator.CopyAlpha);
             return image;
         }
@@ -78,25 +79,26 @@ namespace FrameMark.Components
             using var wm = new MagickImage(wmPath);
             wm.Resize(wm.Width * fontHeightPx / wm.Height, fontHeightPx);
 
-            var drawables = new Drawables().FontPointSize(fontHeightPx)
+            var drawables = new Drawables().Font("JetBrains Mono")
+                                           .FontPointSize(fontHeightPx)
                                            .FillColor(MagickColors.White);
             var metrics = bkg.FontTypeMetrics(text) ?? throw new Exception("获取文本宽度失败");
             var totalWidth = wm.Width + 2 * fontHeightPx + Math.Ceiling(metrics.TextWidth);
             var xOffset = (bkg.Width - totalWidth) / 2; // 水平居中
-            var yOffset = (1 - frameB / 100) * bkg.Height - fontHeightPx / 2; // 垂直居中
+            var yOffset = (100 - frameB / 100) * bkg.Height - fontHeightPx / 2; // 垂直居中
 
             bkg.Composite(wm, (int)xOffset, (int)yOffset, CompositeOperator.Over);
             _ = drawables.TextAlignment(TextAlignment.Left)
                          .Text(xOffset + wm.Width + 2 * fontHeightPx, yOffset, text)
-                         .Draw(wm);
+                         .Draw((IMagickImage<float>)bkg);
             return bkg;
         }
 
         /// <summary> 前景与背景融合 </summary>
         private static IMagickImage Combine(IMagickImage bkg, MagickImage fg, double frameT, double frameL)
         {
-            var xOffset = frameL / 100 * bkg.Width + fg.Width / 2;
-            var yOffset = frameT / 100 * bkg.Height + fg.Height / 2;
+            var xOffset = frameL / 100 * bkg.Width;
+            var yOffset = frameT / 100 * bkg.Height;
             bkg.Composite(fg, (int)xOffset, (int)yOffset, CompositeOperator.Over);
             return bkg;
         }

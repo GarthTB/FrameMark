@@ -112,7 +112,8 @@ namespace FrameMark
 
         private void BtRemoveFile_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in LBFiles.SelectedItems)
+            var items = LBFiles.SelectedItems.Cast<string>().ToArray();
+            foreach (var item in items)
                 LBFiles.Items.Remove(item);
             BtRun.IsEnabled = LBFiles.Items.Count > 0;
         }
