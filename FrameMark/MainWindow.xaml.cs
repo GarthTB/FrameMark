@@ -135,7 +135,7 @@ namespace FrameMark
                 TBAperture.Text,
                 TBISO.Text,
                 TBFocalLen.Text,
-                CBOutputType.SelectedValue.ToString() ?? "WEBP",
+                CBOutputType.Text ?? "WEBP",
                 LBFiles.Items.Cast<string>().ToArray()
                 );
             editor.Run();
