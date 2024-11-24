@@ -86,19 +86,37 @@ namespace FrameMark
             if (Components.Tools.File.Pick("选择水印图标", out var path))
                 if (Components.Tools.File.IsImage(path))
                     TBWaterMark.Text = path;
-                else Components.Tools.MsgB.OkInfo("选择的文件不是图片，未使用。", "提示");
+                else Components.Tools.MsgB.OkInfo("选择的文件不是支持的图片，未使用。", "提示");
         }
 
         #endregion
+
+        #region 添加、选取和移除文件
 
         private void BtAddFile_Click(object sender, RoutedEventArgs e)
         {
             if (Components.Tools.File.MultiPick("选择要处理的图片文件", out var paths))
             {
                 var imagePaths = Components.Tools.File.FilterImages(paths);
+                if (imagePaths.Length == 0) return;
                 foreach (var path in imagePaths)
                     _ = LBFiles.Items.Add(path);
+                if (paths.Length > imagePaths.Length)
+                    Components.Tools.MsgB.OkInfo($"选择的{paths.Length}个文件中包含{paths.Length - imagePaths.Length}个非图片文件，已忽略。", "提示");
+                BtRun.IsEnabled = true;
             }
         }
+
+        private void LBFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+            => BtRemoveFile.IsEnabled = LBFiles.SelectedItems.Count > 0;
+
+        private void BtRemoveFile_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in LBFiles.SelectedItems)
+                LBFiles.Items.Remove(item);
+            BtRun.IsEnabled = LBFiles.Items.Count > 0;
+        }
+
+        #endregion
     }
 }

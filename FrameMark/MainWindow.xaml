@@ -241,6 +241,7 @@
                 x:Name="LBFiles"
                 Grid.Row ="0"
                 Margin="0,13,14,0"
+                SelectionChanged="LBFiles_SelectionChanged"
                 SelectionMode="Multiple" />
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
@@ -278,6 +279,7 @@
                     VerticalAlignment="Top"
                     Background="#FFE0E0E0"
                     BorderBrush="#FFB8B8B8"
+                    Click="BtRemoveFile_Click"
                     Content="移除文件"
                     IsEnabled="False" />
                 <Button
@@ -290,7 +292,8 @@
                     VerticalAlignment="Top"
                     Background="#FFE0E0E0"
                     BorderBrush="#FFB8B8B8"
-                    Content="开始执行" />
+                    Content="开始执行"
+                    IsEnabled="False" />
             </Grid>
         </Grid>
     </Grid>
