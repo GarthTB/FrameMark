@@ -7,9 +7,10 @@
     xmlns:local="clr-namespace:FrameMark"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Width="520"
-    Height="370"
+    Height="404"
     mc:Ignorable="d"
     FontSize="16"
+    KeyDown="MW_KeyDown"
     SizeToContent="WidthAndHeight"
     Title="边框和水印工具">
     <Grid>
@@ -20,7 +21,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition />
-                <RowDefinition Height="144" />
+                <RowDefinition Height="178" />
             </Grid.RowDefinitions>
             <Label
                 Grid.Row ="0"
@@ -90,7 +91,7 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="7"
-                Text="20" />
+                Text="16" />
             <Label
                 Grid.Row ="0"
                 Grid.Column ="0"
@@ -189,14 +190,32 @@
             <Label
                 Grid.Row ="1"
                 Grid.Column ="0"
-                Margin="10,104,141,10"
+                Height="30"
+                Margin="10,104,141,0"
+                VerticalAlignment="Top"
+                Content="缺省焦距" />
+            <TextBox
+                x:Name="TBFocalLen"
+                Grid.Row ="1"
+                Grid.Column ="0"
+                Height="24"
+                Margin="90,107,13,0"
+                VerticalAlignment="Top"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MaxLength="7"
+                Text="50" />
+            <Label
+                Grid.Row ="1"
+                Grid.Column ="0"
+                Margin="10,138,141,10"
                 Content="输出格式" />
             <ComboBox
                 x:Name="CBOutputType"
                 Grid.Row ="1"
                 Grid.Column ="0"
                 MaxHeight="26"
-                Margin="90,106,13,12"
+                Margin="90,140,13,12"
                 VerticalAlignment="Top"
                 VerticalContentAlignment="Center"
                 SelectedIndex="0">
