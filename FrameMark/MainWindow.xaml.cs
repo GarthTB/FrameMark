@@ -61,7 +61,7 @@ namespace FrameMark
         {
             if (double.TryParse(TBRoundCorner.Text, out double roundCorner)
                 && (roundCorner > 100
-                || roundCorner <= 0))
+                || roundCorner < 0))
                 TBRoundCorner.Text = "16";
         }
 
@@ -115,6 +115,31 @@ namespace FrameMark
             foreach (var item in LBFiles.SelectedItems)
                 LBFiles.Items.Remove(item);
             BtRun.IsEnabled = LBFiles.Items.Count > 0;
+        }
+
+        #endregion
+
+        #region 执行操作
+
+        private void BtRun_Click(object sender, RoutedEventArgs e)
+        {
+            Components.ImageEditor editor = new(
+                double.Parse(TBFrameT.Text),
+                double.Parse(TBFrameB.Text),
+                double.Parse(TBFrameL.Text),
+                double.Parse(TBFrameR.Text),
+                double.Parse(TBRoundCorner.Text),
+                double.Parse(TBBlurRadius.Text),
+                TBWaterMark.Text,
+                TBShutter.Text,
+                TBAperture.Text,
+                TBISO.Text,
+                TBFocalLen.Text,
+                CBOutputType.SelectedValue.ToString() ?? "WEBP",
+                LBFiles.Items.Cast<string>().ToArray()
+                );
+            editor.Run();
+            BtRun.IsEnabled = false;
         }
 
         #endregion

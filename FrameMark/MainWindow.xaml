@@ -41,7 +41,8 @@
                 VerticalContentAlignment="Center"
                 MaxLength="5"
                 Text="12"
-                TextChanged="TBFrameT_TextChanged" />
+                TextChanged="TBFrameT_TextChanged"
+                ToolTip="上边框占高百分比" />
             <TextBox
                 x:Name="TBFrameB"
                 Grid.Row ="0"
@@ -53,7 +54,8 @@
                 VerticalContentAlignment="Center"
                 MaxLength="5"
                 Text="16"
-                TextChanged="TBFrameB_TextChanged" />
+                TextChanged="TBFrameB_TextChanged"
+                ToolTip="下边框占高百分比" />
             <TextBox
                 x:Name="TBFrameL"
                 Grid.Row ="0"
@@ -65,7 +67,8 @@
                 VerticalContentAlignment="Center"
                 MaxLength="5"
                 Text="14"
-                TextChanged="TBFrameL_TextChanged" />
+                TextChanged="TBFrameL_TextChanged"
+                ToolTip="左边框占宽百分比" />
             <TextBox
                 x:Name="TBFrameR"
                 Grid.Row ="0"
@@ -77,7 +80,8 @@
                 VerticalContentAlignment="Center"
                 MaxLength="5"
                 Text="14"
-                TextChanged="TBFrameR_TextChanged" />
+                TextChanged="TBFrameR_TextChanged"
+                ToolTip="右边框占宽百分比" />
             <Label
                 Grid.Row ="0"
                 Grid.Column ="0"
@@ -96,7 +100,8 @@
                 VerticalContentAlignment="Center"
                 MaxLength="7"
                 Text="16"
-                TextChanged="TBRoundCorner_TextChanged" />
+                TextChanged="TBRoundCorner_TextChanged"
+                ToolTip="每个圆角占短边百分比" />
             <Label
                 Grid.Row ="0"
                 Grid.Column ="0"
@@ -115,7 +120,8 @@
                 VerticalContentAlignment="Center"
                 MaxLength="7"
                 Text="1"
-                TextChanged="TBBlurRadius_TextChanged" />
+                TextChanged="TBBlurRadius_TextChanged"
+                ToolTip="背景高斯模糊半径占长边百分比" />
             <Label
                 Grid.Row ="0"
                 Grid.Column ="0"
@@ -130,7 +136,8 @@
                 Margin="90,147,13,5"
                 VerticalContentAlignment="Center"
                 IsReadOnly="True"
-                TextWrapping="Wrap" />
+                TextWrapping="Wrap"
+                ToolTip="图标路径" />
             <Button
                 x:Name="BtSelectWaterMark"
                 Grid.Row ="0"
@@ -157,7 +164,8 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="7"
-                Text="1/50" />
+                Text="1/50"
+                ToolTip="单位：秒，可不填" />
             <Label
                 Grid.Row ="1"
                 Grid.Column ="0"
@@ -175,7 +183,8 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="4"
-                Text="2.8" />
+                Text="2.8"
+                ToolTip="f值，可不填" />
             <Label
                 Grid.Row ="1"
                 Grid.Column ="0"
@@ -193,7 +202,8 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="7"
-                Text="100" />
+                Text="100"
+                ToolTip="可不填" />
             <Label
                 Grid.Row ="1"
                 Grid.Column ="0"
@@ -211,7 +221,8 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="7"
-                Text="50" />
+                Text="50"
+                ToolTip="单位：mm，可不填" />
             <Label
                 Grid.Row ="1"
                 Grid.Column ="0"
@@ -292,6 +303,7 @@
                     VerticalAlignment="Top"
                     Background="#FFE0E0E0"
                     BorderBrush="#FFB8B8B8"
+                    Click="BtRun_Click"
                     Content="开始执行"
                     IsEnabled="False" />
             </Grid>

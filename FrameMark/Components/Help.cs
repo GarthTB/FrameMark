@@ -5,7 +5,7 @@ namespace FrameMark.Components
 {
     internal static class Help
     {
-        public static void Show()
+        internal static void Show()
         {
             var version = Assembly.GetExecutingAssembly()
                                   .GetName()
