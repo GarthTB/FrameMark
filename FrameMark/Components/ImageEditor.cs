@@ -20,10 +20,10 @@ namespace FrameMark.Components
                     var a = exif?.GetValue(ExifTag.FNumber)?.Value.ToString() ?? apertrue;
                     var i = exif?.GetValue(ExifTag.ISOSpeedRatings)?.Value.ToString() ?? iso;
                     var f = exif?.GetValue(ExifTag.FocalLengthIn35mmFilm)?.Value.ToString() ?? focalLen;
+                    var text = AggregateInfo(s, a, i, f);
                     var bkg = GenerateBackground(image, frameT, frameB, frameL, frameR, blurRadius);
                     var fg = rcRadius == 0 ? image : GenerateForeground(image, rcRadius);
-                    var text = AggregateInfo(s, a, i, f);
-                    var bkgWithWM = GenerateWatermark(bkg, wmPath, text, frameB);
+                    var bkgWithWM = GenerateWatermark(image, bkg, wmPath, text, frameB);
                     var combined = Combine(bkgWithWM, fg, frameT, frameL);
                     Output(combined, path, outType);
                 });
@@ -35,6 +35,17 @@ namespace FrameMark.Components
             }
         }
 
+        /// <summary> 连接照片信息 </summary>
+        private static string AggregateInfo(string s, string a, string i, string f)
+        {
+            List<string> info = new(4);
+            if (s.Length > 0) info.Add($"{s}s");
+            if (a.Length > 0) info.Add($"f/{a}");
+            if (i.Length > 0) info.Add($"ISO {i}");
+            if (f.Length > 0) info.Add($"{f}mm");
+            return info.Aggregate((a, b) => $"{a} | {b}");
+        }
+
         /// <summary> 生成高斯模糊的背景图 </summary>
         private static IMagickImage GenerateBackground(MagickImage image, double frameT, double frameB, double frameL, double frameR, double blurRadius)
         {
@@ -44,7 +55,8 @@ namespace FrameMark.Components
             bkg.Resize((uint)newW, (uint)newH);
 
             var longSide = Math.Max(image.Width, image.Height);
-            bkg.GaussianBlur(blurRadius / 100 * longSide);
+            var radius = blurRadius / 100 * longSide;
+            bkg.GaussianBlur(radius, 10);
             return bkg;
         }
 
@@ -61,21 +73,10 @@ namespace FrameMark.Components
             return image;
         }
 
-        /// <summary> 连接照片信息 </summary>
-        private static string AggregateInfo(string s, string a, string i, string f)
-        {
-            List<string> info = new(4);
-            if (s.Length > 0) info.Add($"{s}s");
-            if (a.Length > 0) info.Add($"f/{a}");
-            if (i.Length > 0) info.Add($"ISO {i}");
-            if (f.Length > 0) info.Add($"{f}mm");
-            return info.Aggregate((a, b) => $"{a} | {b}");
-        }
-
         /// <summary> 在背景图上添加水印 </summary>
-        private static IMagickImage GenerateWatermark(IMagickImage bkg, string wmPath, string text, double frameB)
+        private static IMagickImage GenerateWatermark(MagickImage image, IMagickImage bkg, string wmPath, string text, double frameB)
         {
-            var fontHeightPx = (uint)(0.382 * frameB / 100 * bkg.Height);
+            var fontHeightPx = (uint)(0.382 * frameB / 100 * image.Height);
             using var wm = new MagickImage(wmPath);
             wm.Resize(wm.Width * fontHeightPx / wm.Height, fontHeightPx);
 
@@ -85,7 +86,7 @@ namespace FrameMark.Components
             var metrics = bkg.FontTypeMetrics(text) ?? throw new Exception("获取文本宽度失败");
             var totalWidth = wm.Width + 2 * fontHeightPx + Math.Ceiling(metrics.TextWidth);
             var xOffset = (bkg.Width - totalWidth) / 2; // 水平居中
-            var yOffset = (100 - frameB / 100) * bkg.Height - fontHeightPx / 2; // 垂直居中
+            var yOffset = (100 - frameB / 2) / 100 * bkg.Height - fontHeightPx / 2; // 垂直居中
 
             bkg.Composite(wm, (int)xOffset, (int)yOffset, CompositeOperator.Over);
             _ = drawables.TextAlignment(TextAlignment.Left)
@@ -97,8 +98,8 @@ namespace FrameMark.Components
         /// <summary> 前景与背景融合 </summary>
         private static IMagickImage Combine(IMagickImage bkg, MagickImage fg, double frameT, double frameL)
         {
-            var xOffset = frameL / 100 * bkg.Width;
-            var yOffset = frameT / 100 * bkg.Height;
+            var xOffset = frameL / 100 * fg.Width;
+            var yOffset = frameT / 100 * fg.Height;
             bkg.Composite(fg, (int)xOffset, (int)yOffset, CompositeOperator.Over);
             return bkg;
         }
