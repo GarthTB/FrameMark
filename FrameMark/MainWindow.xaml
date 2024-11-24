@@ -40,7 +40,8 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="5"
-                Text="12" />
+                Text="12"
+                TextChanged="TBFrameT_TextChanged" />
             <TextBox
                 x:Name="TBFrameB"
                 Grid.Row ="0"
@@ -51,7 +52,8 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="5"
-                Text="16" />
+                Text="16"
+                TextChanged="TBFrameB_TextChanged" />
             <TextBox
                 x:Name="TBFrameL"
                 Grid.Row ="0"
@@ -62,7 +64,8 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="5"
-                Text="14" />
+                Text="14"
+                TextChanged="TBFrameL_TextChanged" />
             <TextBox
                 x:Name="TBFrameR"
                 Grid.Row ="0"
@@ -73,7 +76,8 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="5"
-                Text="14" />
+                Text="14"
+                TextChanged="TBFrameR_TextChanged" />
             <Label
                 Grid.Row ="0"
                 Grid.Column ="0"
@@ -91,7 +95,8 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="7"
-                Text="16" />
+                Text="16"
+                TextChanged="TBRoundCorner_TextChanged" />
             <Label
                 Grid.Row ="0"
                 Grid.Column ="0"
@@ -109,7 +114,8 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="7"
-                Text="1" />
+                Text="1"
+                TextChanged="TBBlurRadius_TextChanged" />
             <Label
                 Grid.Row ="0"
                 Grid.Column ="0"
@@ -122,8 +128,8 @@
                 Grid.Row ="0"
                 Grid.Column ="0"
                 Margin="90,147,13,5"
-                HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
+                IsReadOnly="True"
                 TextWrapping="Wrap" />
             <Button
                 x:Name="BtSelectWaterMark"
@@ -132,6 +138,7 @@
                 Margin="14,179,146,5"
                 Background="#FFE0E0E0"
                 BorderBrush="#FFB8B8B8"
+                Click="BtSelectWaterMark_Click"
                 Content="选取" />
             <Label
                 Grid.Row ="1"
