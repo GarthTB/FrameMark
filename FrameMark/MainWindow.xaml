@@ -1,0 +1,268 @@
+﻿<Window
+    x:Class="FrameMark.MainWindow"
+    x:Name="MW"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:FrameMark"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Width="520"
+    Height="370"
+    mc:Ignorable="d"
+    FontSize="16"
+    SizeToContent="WidthAndHeight"
+    Title="边框和水印工具">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="225" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="144" />
+            </Grid.RowDefinitions>
+            <Label
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Height="30"
+                Margin="10,10,141,0"
+                VerticalAlignment="Top"
+                Content="边框占比" />
+            <TextBox
+                x:Name="TBFrameT"
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Height="24"
+                Margin="90,13,79,0"
+                VerticalAlignment="Top"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MaxLength="5"
+                Text="12" />
+            <TextBox
+                x:Name="TBFrameB"
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Height="24"
+                Margin="156,13,13,0"
+                VerticalAlignment="Top"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MaxLength="5"
+                Text="16" />
+            <TextBox
+                x:Name="TBFrameL"
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Height="24"
+                Margin="90,45,79,0"
+                VerticalAlignment="Top"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MaxLength="5"
+                Text="14" />
+            <TextBox
+                x:Name="TBFrameR"
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Height="24"
+                Margin="156,45,13,0"
+                VerticalAlignment="Top"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MaxLength="5"
+                Text="14" />
+            <Label
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Height="30"
+                Margin="10,76,141,0"
+                VerticalAlignment="Top"
+                Content="圆角半径" />
+            <TextBox
+                x:Name="TBRoundCorner"
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Height="24"
+                Margin="90,79,13,0"
+                VerticalAlignment="Top"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MaxLength="7"
+                Text="20" />
+            <Label
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Height="30"
+                Margin="10,110,141,0"
+                VerticalAlignment="Top"
+                Content="模糊半径" />
+            <TextBox
+                x:Name="TBBlurRadius"
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Height="24"
+                Margin="90,113,13,0"
+                VerticalAlignment="Top"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MaxLength="7"
+                Text="1" />
+            <Label
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Height="30"
+                Margin="10,144,141,0"
+                VerticalAlignment="Top"
+                Content="水印图标" />
+            <TextBox
+                x:Name="TBWaterMark"
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Margin="90,147,13,5"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                TextWrapping="Wrap" />
+            <Button
+                x:Name="BtSelectWaterMark"
+                Grid.Row ="0"
+                Grid.Column ="0"
+                Margin="14,179,146,5"
+                Background="#FFE0E0E0"
+                BorderBrush="#FFB8B8B8"
+                Content="选取" />
+            <Label
+                Grid.Row ="1"
+                Grid.Column ="0"
+                Height="30"
+                Margin="10,2,141,0"
+                VerticalAlignment="Top"
+                Content="缺省快门" />
+            <TextBox
+                x:Name="TBShutter"
+                Grid.Row ="1"
+                Grid.Column ="0"
+                Height="24"
+                Margin="90,5,13,0"
+                VerticalAlignment="Top"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MaxLength="7"
+                Text="1/50" />
+            <Label
+                Grid.Row ="1"
+                Grid.Column ="0"
+                Height="30"
+                Margin="10,36,141,0"
+                VerticalAlignment="Top"
+                Content="缺省光圈" />
+            <TextBox
+                x:Name="TBAperture"
+                Grid.Row ="1"
+                Grid.Column ="0"
+                Height="24"
+                Margin="90,39,13,0"
+                VerticalAlignment="Top"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MaxLength="4"
+                Text="2.8" />
+            <Label
+                Grid.Row ="1"
+                Grid.Column ="0"
+                Height="30"
+                Margin="10,70,141,0"
+                VerticalAlignment="Top"
+                Content="缺省 ISO" />
+            <TextBox
+                x:Name="TBISO"
+                Grid.Row ="1"
+                Grid.Column ="0"
+                Height="24"
+                Margin="90,73,13,0"
+                VerticalAlignment="Top"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MaxLength="7"
+                Text="100" />
+            <Label
+                Grid.Row ="1"
+                Grid.Column ="0"
+                Margin="10,104,141,10"
+                Content="输出格式" />
+            <ComboBox
+                x:Name="CBOutputType"
+                Grid.Row ="1"
+                Grid.Column ="0"
+                MaxHeight="26"
+                Margin="90,106,13,12"
+                VerticalAlignment="Top"
+                VerticalContentAlignment="Center"
+                SelectedIndex="0">
+                <ComboBoxItem Content="WEBP" />
+                <ComboBoxItem Content="TIFF" />
+                <ComboBoxItem Content="PNG" />
+                <ComboBoxItem Content="满质量JPG" />
+            </ComboBox>
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="48" />
+            </Grid.RowDefinitions>
+            <ListBox
+                x:Name="LBFiles"
+                Grid.Row ="0"
+                Margin="0,13,14,0" />
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="10" />
+                    <RowDefinition />
+                    <RowDefinition Height="10" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="14" />
+                </Grid.ColumnDefinitions>
+                <Button
+                    x:Name="BtAddFile"
+                    Grid.Row ="1"
+                    Grid.Column ="0"
+                    MinWidth="84"
+                    MinHeight="26"
+                    Margin="0,0,0,0"
+                    VerticalAlignment="Top"
+                    Background="#FFE0E0E0"
+                    BorderBrush="#FFB8B8B8"
+                    Content="添加文件" />
+                <Button
+                    x:Name="BtRemoveFile"
+                    Grid.Row ="1"
+                    Grid.Column ="2"
+                    MinWidth="84"
+                    MinHeight="26"
+                    Margin="0,0,0,0"
+                    VerticalAlignment="Top"
+                    Background="#FFE0E0E0"
+                    BorderBrush="#FFB8B8B8"
+                    Content="移除文件" />
+                <Button
+                    x:Name="BtRun"
+                    Grid.Row ="1"
+                    Grid.Column ="4"
+                    MinWidth="84"
+                    MinHeight="26"
+                    Margin="0,0,0,0"
+                    VerticalAlignment="Top"
+                    Background="#FFE0E0E0"
+                    BorderBrush="#FFB8B8B8"
+                    Content="开始执行" />
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
