@@ -119,7 +119,7 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="7"
-                Text="1"
+                Text="2"
                 TextChanged="TBBlurRadius_TextChanged"
                 ToolTip="背景高斯模糊半径占长边百分比" />
             <Label

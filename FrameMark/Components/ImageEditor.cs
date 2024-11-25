@@ -15,12 +15,7 @@ namespace FrameMark.Components
                 _ = Parallel.ForEach(filePaths, path =>
                 {
                     using var image = new MagickImage(path);
-                    var exif = image.GetExifProfile();
-                    var s = exif?.GetValue(ExifTag.ExposureTime)?.Value.ToString() ?? shutter;
-                    var a = exif?.GetValue(ExifTag.FNumber)?.Value.ToString() ?? apertrue;
-                    var i = exif?.GetValue(ExifTag.ISOSpeedRatings)?.Value.ToString() ?? iso;
-                    var f = exif?.GetValue(ExifTag.FocalLengthIn35mmFilm)?.Value.ToString() ?? focalLen;
-                    var text = AggregateInfo(s, a, i, f);
+                    var text = AggregateInfo(image, shutter, apertrue, iso, focalLen);
                     var bkg = GenerateBackground(image, frameT, frameB, frameL, frameR, blurRadius);
                     var fg = rcRadius == 0 ? image : GenerateForeground(image, rcRadius);
                     var bkgWithWM = GenerateWatermark(image, bkg, wmPath, text, frameB);
@@ -36,8 +31,14 @@ namespace FrameMark.Components
         }
 
         /// <summary> 连接照片信息 </summary>
-        private static string AggregateInfo(string s, string a, string i, string f)
+        private static string AggregateInfo(MagickImage image, string shutter, string apertrue, string iso, string focalLen)
         {
+            var exif = image.GetExifProfile();
+            var s = exif?.GetValue(ExifTag.ExposureTime)?.Value.ToString() ?? shutter;
+            var a = exif?.GetValue(ExifTag.FNumber)?.Value.ToDouble().ToString("0.0") ?? apertrue;
+            var i = exif?.GetValue(ExifTag.ISOSpeed)?.Value.ToString() ?? iso;
+            var f = exif?.GetValue(ExifTag.FocalLengthIn35mmFilm)?.Value.ToString() ?? focalLen;
+
             List<string> info = new(4);
             if (s.Length > 0) info.Add($"{s}s");
             if (a.Length > 0) info.Add($"f/{a}");
@@ -46,7 +47,7 @@ namespace FrameMark.Components
             return info.Aggregate((a, b) => $"{a} | {b}");
         }
 
-        /// <summary> 生成高斯模糊的背景图 </summary>
+        /// <summary> 生成模糊且变暗的背景图 </summary>
         private static IMagickImage GenerateBackground(MagickImage image, double frameT, double frameB, double frameL, double frameR, double blurRadius)
         {
             var bkg = image.Clone();
@@ -56,7 +57,9 @@ namespace FrameMark.Components
 
             var longSide = Math.Max(image.Width, image.Height);
             var radius = blurRadius / 100 * longSide;
-            bkg.GaussianBlur(radius, 10);
+            bkg.Blur(radius, radius * 0.618);
+
+            bkg.Evaluate(Channels.All, EvaluateOperator.Multiply, 0.618);
             return bkg;
         }
 
@@ -68,6 +71,7 @@ namespace FrameMark.Components
             var mask = new MagickImage(new MagickColor(0, 0, 0, 0), image.Width, image.Height);
             mask.Settings.FillColor = MagickColors.White;
             mask.Draw(new DrawableRoundRectangle(0, 0, image.Width, image.Height, radius, radius));
+            mask.Blur(1, 1); // 去锯齿
             image.Alpha(AlphaOption.Set);
             image.Composite(mask, CompositeOperator.CopyAlpha);
             return image;
@@ -76,22 +80,30 @@ namespace FrameMark.Components
         /// <summary> 在背景图上添加水印 </summary>
         private static IMagickImage GenerateWatermark(MagickImage image, IMagickImage bkg, string wmPath, string text, double frameB)
         {
-            var fontHeightPx = (uint)(0.382 * frameB / 100 * image.Height);
+            // 字体像素高度为底框高度的0.24倍
+            var fontPoint = (uint)(0.24 * frameB / 100 * image.Height);
+            image.Settings.FontPointsize = fontPoint;
+            var metrics = image.FontTypeMetrics(text);
+            var textWidth = metrics?.TextWidth ?? throw new Exception("获取文本宽度失败");
+            var textHeight = metrics?.TextHeight ?? throw new Exception("获取文本高度失败");
+
+            // 水印高度与字体高度一致
             using var wm = new MagickImage(wmPath);
-            wm.Resize(wm.Width * fontHeightPx / wm.Height, fontHeightPx);
+            wm.Resize((uint)(wm.Width * textHeight / wm.Height), (uint)textHeight);
 
-            var drawables = new Drawables().Font("JetBrains Mono")
-                                           .FontPointSize(fontHeightPx)
-                                           .FillColor(MagickColors.White);
-            var metrics = bkg.FontTypeMetrics(text) ?? throw new Exception("获取文本宽度失败");
-            var totalWidth = wm.Width + 2 * fontHeightPx + Math.Ceiling(metrics.TextWidth);
-            var xOffset = (bkg.Width - totalWidth) / 2; // 水平居中
-            var yOffset = (100 - frameB / 2) / 100 * bkg.Height - fontHeightPx / 2; // 垂直居中
+            // 整体偏移
+            var totalWidth = wm.Width + textHeight * 0.618 + textWidth;
+            var xOffset = (bkg.Width - totalWidth) / 2;
+            var yOffset = bkg.Height - frameB / 200 * image.Height - textHeight / 2;
 
+            // 合成
             bkg.Composite(wm, (int)xOffset, (int)yOffset, CompositeOperator.Over);
-            _ = drawables.TextAlignment(TextAlignment.Left)
-                         .Text(xOffset + wm.Width + 2 * fontHeightPx, yOffset, text)
-                         .Draw((IMagickImage<float>)bkg);
+            var drawables = new Drawables().FillColor(MagickColors.WhiteSmoke)
+                .FontPointSize(fontPoint)
+                .StrokeColor(MagickColors.Black)
+                .StrokeWidth(fontPoint * 0.03)
+                .Text(xOffset + wm.Width + textHeight * 0.618, yOffset + textHeight * 0.8, text);
+            _ = drawables.Draw((IMagickImage<float>)bkg);
             return bkg;
         }
 
