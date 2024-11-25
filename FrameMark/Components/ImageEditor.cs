@@ -37,7 +37,9 @@ namespace FrameMark.Components
             var s = exif?.GetValue(ExifTag.ExposureTime)?.Value.ToString() ?? shutter;
             var a = exif?.GetValue(ExifTag.FNumber)?.Value.ToDouble().ToString("0.0") ?? apertrue;
             var i = exif?.GetValue(ExifTag.ISOSpeed)?.Value.ToString() ?? iso;
-            var f = exif?.GetValue(ExifTag.FocalLengthIn35mmFilm)?.Value.ToString() ?? focalLen;
+            var f = exif?.GetValue(ExifTag.FocalLengthIn35mmFilm)?.ToString()
+                ?? exif?.GetValue(ExifTag.FocalLength)?.Value.ToDouble().ToString("0.0")
+                ?? focalLen;
 
             List<string> info = new(4);
             if (s.Length > 0) info.Add($"{s}s");
@@ -88,21 +90,28 @@ namespace FrameMark.Components
             var textHeight = metrics?.TextHeight ?? throw new Exception("获取文本高度失败");
 
             // 水印高度与字体高度一致
-            using var wm = new MagickImage(wmPath);
-            wm.Resize((uint)(wm.Width * textHeight / wm.Height), (uint)textHeight);
+            var wmWidth = 0u;
+            MagickImage? wm = null;
+            if (wmPath.Length > 0)
+            {
+                wm = new MagickImage(wmPath);
+                wm.Resize((uint)(wm.Width * textHeight / wm.Height), (uint)textHeight);
+                wmWidth = wm.Width;
+            }
 
             // 整体偏移
-            var totalWidth = wm.Width + textHeight * 0.618 + textWidth;
+            var totalWidth = wmWidth + textHeight * 0.618 + textWidth;
             var xOffset = (bkg.Width - totalWidth) / 2;
             var yOffset = bkg.Height - frameB / 200 * image.Height - textHeight / 2;
 
             // 合成
-            bkg.Composite(wm, (int)xOffset, (int)yOffset, CompositeOperator.Over);
+            if (wm is not null)
+                bkg.Composite(wm, (int)xOffset, (int)yOffset, CompositeOperator.Over);
             var drawables = new Drawables().FillColor(MagickColors.WhiteSmoke)
                 .FontPointSize(fontPoint)
                 .StrokeColor(MagickColors.Black)
                 .StrokeWidth(fontPoint * 0.03)
-                .Text(xOffset + wm.Width + textHeight * 0.618, yOffset + textHeight * 0.8, text);
+                .Text(xOffset + wmWidth + textHeight * 0.618, yOffset + textHeight * 0.8, text);
             _ = drawables.Draw((IMagickImage<float>)bkg);
             return bkg;
         }

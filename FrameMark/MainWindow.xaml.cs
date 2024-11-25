@@ -24,32 +24,28 @@ namespace FrameMark
         private void TBFrameT_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (double.TryParse(TBFrameT.Text, out double frameT)
-                && (frameT > 100
-                || frameT <= 0))
+                && frameT <= 0)
                 TBFrameT.Text = "12";
         }
 
         private void TBFrameB_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (double.TryParse(TBFrameB.Text, out double frameB)
-                && (frameB > 100
-                || frameB <= 0))
+                && frameB <= 0)
                 TBFrameB.Text = "16";
         }
 
         private void TBFrameL_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (double.TryParse(TBFrameL.Text, out double frameL)
-                && (frameL > 100
-                || frameL <= 0))
+                && frameL <= 0)
                 TBFrameL.Text = "14";
         }
 
         private void TBFrameR_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (double.TryParse(TBFrameR.Text, out double frameR)
-                && (frameR > 100
-                || frameR <= 0))
+                && frameR <= 0)
                 TBFrameR.Text = "14";
         }
 

@@ -99,7 +99,7 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="7"
-                Text="16"
+                Text="18"
                 TextChanged="TBRoundCorner_TextChanged"
                 ToolTip="每个圆角占短边百分比" />
             <Label
@@ -163,7 +163,6 @@
                 VerticalAlignment="Top"
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
-                MaxLength="7"
                 Text="1/50"
                 ToolTip="单位：秒，可不填" />
             <Label
@@ -182,7 +181,6 @@
                 VerticalAlignment="Top"
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
-                MaxLength="4"
                 Text="2.8"
                 ToolTip="f值，可不填" />
             <Label
@@ -201,7 +199,6 @@
                 VerticalAlignment="Top"
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
-                MaxLength="7"
                 Text="100"
                 ToolTip="可不填" />
             <Label
@@ -220,7 +217,6 @@
                 VerticalAlignment="Top"
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
-                MaxLength="7"
                 Text="50"
                 ToolTip="单位：mm，可不填" />
             <Label
