@@ -136,7 +136,6 @@ namespace FrameMark
                 LBFiles.Items.Cast<string>().ToArray()
                 );
             editor.Run();
-            BtRun.IsEnabled = false;
         }
 
         #endregion

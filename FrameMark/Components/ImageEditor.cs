@@ -35,10 +35,10 @@ namespace FrameMark.Components
         {
             var exif = image.GetExifProfile();
             var s = exif?.GetValue(ExifTag.ExposureTime)?.Value.ToString() ?? shutter;
-            var a = exif?.GetValue(ExifTag.FNumber)?.Value.ToDouble().ToString("0.0") ?? apertrue;
+            var a = ConvertFraction(exif?.GetValue(ExifTag.FNumber)?.Value.ToString()) ?? apertrue;
             var i = exif?.GetValue(ExifTag.ISOSpeed)?.Value.ToString() ?? iso;
             var f = exif?.GetValue(ExifTag.FocalLengthIn35mmFilm)?.ToString()
-                ?? exif?.GetValue(ExifTag.FocalLength)?.Value.ToDouble().ToString("0.0")
+                ?? ConvertFraction(exif?.GetValue(ExifTag.FocalLength)?.Value.ToString())
                 ?? focalLen;
 
             List<string> info = new(4);
@@ -47,6 +47,27 @@ namespace FrameMark.Components
             if (i.Length > 0) info.Add($"ISO {i}");
             if (f.Length > 0) info.Add($"{f}mm");
             return info.Aggregate((a, b) => $"{a} | {b}");
+
+            static string? ConvertFraction(string? value)
+            {
+                if (value == null) return null;
+                var parts = value.Split('/');
+                if (parts.Length != 2
+                    || !uint.TryParse(parts[0], out var up)
+                    || !uint.TryParse(parts[1], out var down)) return value;
+                if (up > down)
+                {
+                    var accuracy = parts[1].Length - 1;
+                    var upLen = parts[0].Length;
+                    var dotIndex = upLen - accuracy;
+                    return $"{parts[0][..dotIndex]}.{parts[0][dotIndex..]}";
+                }
+                else
+                {
+                    var result = (double)up / down;
+                    return result.ToString()[..(parts[1].Length + 1)];
+                }
+            }
         }
 
         /// <summary> 生成模糊且变暗的背景图 </summary>
@@ -111,10 +132,10 @@ namespace FrameMark.Components
             // 合成
             if (wm is not null)
                 bkg.Composite(wm, (int)xOffset, (int)yOffset, CompositeOperator.Over);
-            var drawables = new Drawables().FillColor(MagickColors.WhiteSmoke)
+            var drawables = new Drawables().FillColor(new MagickColor(62720, 62720, 62720))
                 .FontPointSize(fontPoint)
-                .StrokeColor(MagickColors.Black)
-                .StrokeWidth(fontPoint * 0.03)
+                .StrokeColor(new MagickColor(2560, 2560, 2560))
+                .StrokeWidth(fontPoint * 0.025)
                 .Text(xOffset + wmWidth + textHeight * 0.618, yOffset + textHeight * 0.8, text);
             _ = drawables.Draw((IMagickImage<float>)bkg);
             return bkg;

@@ -13,7 +13,7 @@ namespace FrameMark.Components
                                   .ToString()
                                   ?? "未知";
             var sb = new StringBuilder();
-            var help = sb.AppendLine("欢迎使用图片加边框水印工具！")
+            var help = sb.AppendLine("欢迎使用图片加边框水印工具！\n")
                          .AppendLine("本程序会对照片进行以下操作：")
                          .AppendLine("1. 按需要放大、模糊，并压暗，作为边框。\n  模糊半径为图像长边的指定百分比。")
                          .AppendLine("2. 将图片本身切去圆角，放在其上。\n  圆角半径为图像短边的指定百分比。")
