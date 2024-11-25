@@ -55,7 +55,11 @@ namespace FrameMark.Components
             var bkg = image.Clone();
             var newW = (frameL + frameR + 100) / 100 * image.Width;
             var newH = (frameT + frameB + 100) / 100 * image.Height;
-            bkg.Resize((uint)newW, (uint)newH);
+            var geometry = new MagickGeometry((uint)newW, (uint)newH)
+            {
+                IgnoreAspectRatio = true
+            };
+            bkg.Resize(geometry);
 
             var longSide = Math.Max(image.Width, image.Height);
             var radius = blurRadius / 100 * longSide;
