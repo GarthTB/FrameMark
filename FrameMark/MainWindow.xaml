@@ -12,7 +12,7 @@
     FontSize="16"
     KeyDown="MW_KeyDown"
     SizeToContent="WidthAndHeight"
-    Title="边框和水印工具">
+    Title="边框与水印工具">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="225" />

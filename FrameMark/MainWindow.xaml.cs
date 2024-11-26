@@ -120,6 +120,7 @@ namespace FrameMark
 
         private void BtRun_Click(object sender, RoutedEventArgs e)
         {
+            MW.Title = "边框与水印工具  处理中，请等待...";
             Components.ImageEditor editor = new(
                 double.Parse(TBFrameT.Text),
                 double.Parse(TBFrameB.Text),
@@ -136,6 +137,7 @@ namespace FrameMark
                 LBFiles.Items.Cast<string>().ToArray()
                 );
             editor.Run();
+            MW.Title = "边框与水印工具";
         }
 
         #endregion

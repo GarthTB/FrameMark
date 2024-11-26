@@ -34,7 +34,7 @@ namespace FrameMark.Components
         private static string AggregateInfo(MagickImage image, string shutter, string apertrue, string iso, string focalLen)
         {
             var exif = image.GetExifProfile();
-            var s = exif?.GetValue(ExifTag.ExposureTime)?.Value.ToString() ?? shutter;
+            var s = Normalize(exif?.GetValue(ExifTag.ExposureTime)?.Value.ToString()) ?? shutter;
             var a = ConvertFraction(exif?.GetValue(ExifTag.FNumber)?.Value.ToString()) ?? apertrue;
             var i = exif?.GetValue(ExifTag.ISOSpeed)?.Value.ToString() ?? iso;
             var f = exif?.GetValue(ExifTag.FocalLengthIn35mmFilm)?.ToString()
@@ -42,11 +42,25 @@ namespace FrameMark.Components
                 ?? focalLen;
 
             List<string> info = new(4);
-            if (s.Length > 0) info.Add($"{s}s");
+            if (s.Length > 0) info.Add($"{s} s");
             if (a.Length > 0) info.Add($"f/{a}");
             if (i.Length > 0) info.Add($"ISO {i}");
-            if (f.Length > 0) info.Add($"{f}mm");
+            if (f.Length > 0) info.Add($"{f} mm");
             return info.Aggregate((a, b) => $"{a} | {b}");
+
+            static string? Normalize(string? value)
+            {
+                if (value == null) return null;
+                var parts = value.Split('/');
+                return parts.Length != 2
+                    || parts[0] == "1"
+                    || !uint.TryParse(parts[0], out var up)
+                    || !uint.TryParse(parts[1], out var down)
+                        ? value // 如果不为分数或者已通分，则原样返回
+                        : up > down
+                            ? $"{(double)up / down:#.#}"
+                            : $"1/{(double)down / up:#.#}";
+            }
 
             static string? ConvertFraction(string? value)
             {
@@ -55,14 +69,12 @@ namespace FrameMark.Components
                 if (parts.Length != 2
                     || !uint.TryParse(parts[0], out var up)
                     || !uint.TryParse(parts[1], out var down)) return value;
-                if (up > down)
+                if (up > down) // 如果分子大，则直接插入小数点
                 {
-                    var accuracy = parts[1].Length - 1;
-                    var upLen = parts[0].Length;
-                    var dotIndex = upLen - accuracy;
+                    var dotIndex = parts[0].Length - parts[1].Length + 1;
                     return $"{parts[0][..dotIndex]}.{parts[0][dotIndex..]}";
                 }
-                else
+                else // 如果分母大，则按精度保留指定长度
                 {
                     var result = (double)up / down;
                     return result.ToString()[..(parts[1].Length + 1)];
@@ -134,8 +146,8 @@ namespace FrameMark.Components
                 bkg.Composite(wm, (int)xOffset, (int)yOffset, CompositeOperator.Over);
             var drawables = new Drawables().FillColor(new MagickColor(62720, 62720, 62720))
                 .FontPointSize(fontPoint)
-                .StrokeColor(new MagickColor(2560, 2560, 2560))
-                .StrokeWidth(fontPoint * 0.025)
+                .StrokeColor(new MagickColor(60000, 60000, 60000))
+                .StrokeWidth(fontPoint * 0.008)
                 .Text(xOffset + wmWidth + textHeight * 0.618, yOffset + textHeight * 0.8, text);
             _ = drawables.Draw((IMagickImage<float>)bkg);
             return bkg;
