@@ -32,21 +32,21 @@ namespace FrameMark
         {
             if (double.TryParse(TBFrameB.Text, out double frameB)
                 && frameB <= 0)
-                TBFrameB.Text = "16";
+                TBFrameB.Text = "18";
         }
 
         private void TBFrameL_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (double.TryParse(TBFrameL.Text, out double frameL)
                 && frameL <= 0)
-                TBFrameL.Text = "14";
+                TBFrameL.Text = "12";
         }
 
         private void TBFrameR_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (double.TryParse(TBFrameR.Text, out double frameR)
                 && frameR <= 0)
-                TBFrameR.Text = "14";
+                TBFrameR.Text = "12";
         }
 
         #endregion
@@ -58,7 +58,7 @@ namespace FrameMark
             if (double.TryParse(TBRoundCorner.Text, out double roundCorner)
                 && (roundCorner > 100
                 || roundCorner < 0))
-                TBRoundCorner.Text = "16";
+                TBRoundCorner.Text = "18";
         }
 
         #endregion
@@ -133,7 +133,7 @@ namespace FrameMark
                 TBAperture.Text,
                 TBISO.Text,
                 TBFocalLen.Text,
-                CBOutputType.Text ?? "WEBP",
+                CBOutputType.Text ?? "无损WEBP",
                 LBFiles.Items.Cast<string>().ToArray()
                 );
             editor.Run();

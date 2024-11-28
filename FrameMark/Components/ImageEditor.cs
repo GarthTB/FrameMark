@@ -12,17 +12,25 @@ namespace FrameMark.Components
         {
             try
             {
+                var successCount = 0;
                 _ = Parallel.ForEach(filePaths, path =>
                 {
+                    if (!File.Exists(path))
+                        return;
                     using var image = new MagickImage(path);
+                    if (((uint)(blurRatio * image.Width)) == 0 || ((uint)(blurRatio * image.Height)) == 0)
+                        return;
                     var text = AggregateInfo(image, shutter, apertrue, iso, focalLen);
                     var bkg = GenerateBackground(image, frameT, frameB, frameL, frameR, blurRatio);
                     var fg = rcRadius == 0 ? image : GenerateForeground(image, rcRadius);
                     var bkgWithWM = GenerateWatermark(image, bkg, wmPath, text, frameB);
                     var combined = Combine(bkgWithWM, fg, frameT, frameL);
                     Output(combined, path, outType);
+                    _ = Interlocked.Increment(ref successCount);
                 });
-                Tools.MsgB.OkInfo($"{filePaths.Length}张图片全部处理完成", "提示");
+                if (successCount == filePaths.Length)
+                    Tools.MsgB.OkInfo($"{filePaths.Length}张图片全部处理完成", "提示");
+                else Tools.MsgB.OkInfo($"{successCount}张图片处理完成，{filePaths.Length - successCount}张图片未处理", "提示");
             }
             catch (Exception e)
             {
@@ -86,13 +94,13 @@ namespace FrameMark.Components
         private static IMagickImage GenerateBackground(MagickImage image, double frameT, double frameB, double frameL, double frameR, double blurRatio)
         {
             var bkg = image.Clone();
-            var smallW = blurRatio * image.Width;
-            var smallH = blurRatio * image.Height;
-            var geometry = new MagickGeometry((uint)smallW, (uint)smallH)
+            var geometry = new MagickGeometry() { IgnoreAspectRatio = true };
+            if (blurRatio != 1)
             {
-                IgnoreAspectRatio = true
-            };
-            bkg.Resize(geometry);
+                geometry.Width = (uint)(blurRatio * image.Width);
+                geometry.Height = (uint)(blurRatio * image.Height);
+                bkg.Resize(geometry);
+            }
 
             geometry.Width = (uint)((frameL + frameR + 100) / 100 * image.Width);
             geometry.Height = (uint)((frameT + frameB + 100) / 100 * image.Height);
@@ -127,17 +135,15 @@ namespace FrameMark.Components
             var textHeight = metrics?.TextHeight ?? throw new Exception("获取文本高度失败");
 
             // 水印高度与字体高度一致
-            var wmWidth = 0u;
             MagickImage? wm = null;
             if (wmPath.Length > 0)
             {
                 wm = new MagickImage(wmPath);
                 wm.Resize((uint)(wm.Width * textHeight / wm.Height), (uint)textHeight);
-                wmWidth = wm.Width;
             }
 
             // 整体偏移
-            var totalWidth = wmWidth + textHeight * 0.618 + textWidth;
+            var totalWidth = (wm?.Width ?? 0) + textHeight * 0.618 + textWidth;
             var xOffset = (bkg.Width - totalWidth) / 2;
             var yOffset = bkg.Height - frameB / 200 * image.Height - textHeight / 2;
 
@@ -148,7 +154,7 @@ namespace FrameMark.Components
                 .FontPointSize(fontPoint)
                 .StrokeColor(new MagickColor(60000, 60000, 60000))
                 .StrokeWidth(fontPoint * 0.008)
-                .Text(xOffset + wmWidth + textHeight * 0.618, yOffset + textHeight * 0.8, text);
+                .Text(xOffset + (wm?.Width ?? 0) + textHeight * 0.618, yOffset + textHeight * 0.8, text);
             _ = drawables.Draw((IMagickImage<float>)bkg);
             return bkg;
         }
@@ -166,28 +172,7 @@ namespace FrameMark.Components
         private static void Output(IMagickImage image, string path, string format)
         {
             image.Quality = 100;
-            string newPath;
-            switch (format)
-            {
-                case "WEBP":
-                    newPath = Rename("webp");
-                    image.Format = MagickFormat.WebP;
-                    break;
-                case "TIFF":
-                    newPath = Rename("tif");
-                    image.Format = MagickFormat.Tiff;
-                    break;
-                case "PNG":
-                    newPath = Rename("png");
-                    image.Format = MagickFormat.Png;
-                    break;
-                case "满质量JPG":
-                    newPath = Rename("jpg");
-                    image.Format = MagickFormat.Jpeg;
-                    break;
-                default:
-                    throw new Exception("不支持的格式");
-            }
+            string newPath = Reformat(image, format);
             image.Write(newPath);
 
             string Rename(string ext)
@@ -203,6 +188,27 @@ namespace FrameMark.Components
                     newPath = Path.Combine(dir, newName);
                 }
                 return newPath;
+            }
+
+            string Reformat(IMagickImage image, string format)
+            {
+                switch (format)
+                {
+                    case "无损WEBP":
+                        image.Format = MagickFormat.WebP;
+                        return Rename("webp");
+                    case "满质量JPG":
+                        image.Format = MagickFormat.Jpeg;
+                        return Rename("jpg");
+                    case "PNG":
+                        image.Format = MagickFormat.Png;
+                        return Rename("png");
+                    case "TIF":
+                        image.Format = MagickFormat.Tiff;
+                        return Rename("tif");
+                    default:
+                        throw new Exception("不支持的格式");
+                }
             }
         }
     }
