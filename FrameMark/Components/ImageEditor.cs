@@ -5,7 +5,7 @@ using System.IO;
 namespace FrameMark.Components
 {
     internal class ImageEditor(double frameT, double frameB, double frameL, double frameR,
-                               double rcRadius, double blurRadius, string wmPath, string shutter,
+                               double rcRadius, double blurRatio, string wmPath, string shutter,
                                string apertrue, string iso, string focalLen, string outType, string[] filePaths)
     {
         internal void Run()
@@ -16,7 +16,7 @@ namespace FrameMark.Components
                 {
                     using var image = new MagickImage(path);
                     var text = AggregateInfo(image, shutter, apertrue, iso, focalLen);
-                    var bkg = GenerateBackground(image, frameT, frameB, frameL, frameR, blurRadius);
+                    var bkg = GenerateBackground(image, frameT, frameB, frameL, frameR, blurRatio);
                     var fg = rcRadius == 0 ? image : GenerateForeground(image, rcRadius);
                     var bkgWithWM = GenerateWatermark(image, bkg, wmPath, text, frameB);
                     var combined = Combine(bkgWithWM, fg, frameT, frameL);
@@ -83,20 +83,20 @@ namespace FrameMark.Components
         }
 
         /// <summary> 生成模糊且变暗的背景图 </summary>
-        private static IMagickImage GenerateBackground(MagickImage image, double frameT, double frameB, double frameL, double frameR, double blurRadius)
+        private static IMagickImage GenerateBackground(MagickImage image, double frameT, double frameB, double frameL, double frameR, double blurRatio)
         {
             var bkg = image.Clone();
-            var newW = (frameL + frameR + 100) / 100 * image.Width;
-            var newH = (frameT + frameB + 100) / 100 * image.Height;
-            var geometry = new MagickGeometry((uint)newW, (uint)newH)
+            var smallW = blurRatio * image.Width;
+            var smallH = blurRatio * image.Height;
+            var geometry = new MagickGeometry((uint)smallW, (uint)smallH)
             {
                 IgnoreAspectRatio = true
             };
             bkg.Resize(geometry);
 
-            var longSide = Math.Max(image.Width, image.Height);
-            var radius = blurRadius / 100 * longSide;
-            bkg.Blur(radius, radius * 0.618);
+            geometry.Width = (uint)((frameL + frameR + 100) / 100 * image.Width);
+            geometry.Height = (uint)((frameT + frameB + 100) / 100 * image.Height);
+            bkg.Resize(geometry);
 
             bkg.Evaluate(Channels.All, EvaluateOperator.Multiply, 0.618);
             return bkg;
@@ -110,7 +110,7 @@ namespace FrameMark.Components
             var mask = new MagickImage(new MagickColor(0, 0, 0, 0), image.Width, image.Height);
             mask.Settings.FillColor = MagickColors.White;
             mask.Draw(new DrawableRoundRectangle(0, 0, image.Width, image.Height, radius, radius));
-            mask.Blur(1, 1); // 去锯齿
+            mask.Blur(0.5, 0.5); // 去锯齿
             image.Alpha(AlphaOption.Set);
             image.Composite(mask, CompositeOperator.CopyAlpha);
             return image;

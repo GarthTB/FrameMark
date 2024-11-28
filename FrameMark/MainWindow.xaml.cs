@@ -63,14 +63,14 @@ namespace FrameMark
 
         #endregion
 
-        #region 模糊半径设置
+        #region 模糊程度设置
 
-        private void TBBlurRadius_TextChanged(object sender, TextChangedEventArgs e)
+        private void TBBlurRatio_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (double.TryParse(TBBlurRadius.Text, out double blurRadius)
-                && (blurRadius > 100
-                || blurRadius <= 0))
-                TBBlurRadius.Text = "1";
+            if (double.TryParse(TBBlurRatio.Text, out double blurRatio)
+                && (blurRatio > 1
+                || blurRatio <= 0))
+                TBBlurRatio.Text = "0.01";
         }
 
         #endregion
@@ -127,7 +127,7 @@ namespace FrameMark
                 double.Parse(TBFrameL.Text),
                 double.Parse(TBFrameR.Text),
                 double.Parse(TBRoundCorner.Text),
-                double.Parse(TBBlurRadius.Text),
+                double.Parse(TBBlurRatio.Text),
                 TBWaterMark.Text,
                 TBShutter.Text,
                 TBAperture.Text,

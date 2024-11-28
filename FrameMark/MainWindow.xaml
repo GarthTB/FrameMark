@@ -108,9 +108,9 @@
                 Height="30"
                 Margin="10,110,141,0"
                 VerticalAlignment="Top"
-                Content="模糊半径" />
+                Content="模糊程度" />
             <TextBox
-                x:Name="TBBlurRadius"
+                x:Name="TBBlurRatio"
                 Grid.Row ="0"
                 Grid.Column ="0"
                 Height="24"
@@ -119,9 +119,9 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 MaxLength="7"
-                Text="2"
-                TextChanged="TBBlurRadius_TextChanged"
-                ToolTip="背景高斯模糊半径占长边百分比" />
+                Text="0.01"
+                TextChanged="TBBlurRatio_TextChanged"
+                ToolTip="背景模糊程度，数字越小越糊" />
             <Label
                 Grid.Row ="0"
                 Grid.Column ="0"
