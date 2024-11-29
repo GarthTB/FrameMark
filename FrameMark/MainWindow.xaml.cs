@@ -23,29 +23,29 @@ namespace FrameMark
 
         private void TBFrameT_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (double.TryParse(TBFrameT.Text, out double frameT)
-                && frameT <= 0)
+            if (!double.TryParse(TBFrameT.Text, out double frameT)
+                || frameT < 0)
                 TBFrameT.Text = "12";
         }
 
         private void TBFrameB_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (double.TryParse(TBFrameB.Text, out double frameB)
-                && frameB <= 0)
+            if (!double.TryParse(TBFrameB.Text, out double frameB)
+                || frameB <= 0)
                 TBFrameB.Text = "18";
         }
 
         private void TBFrameL_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (double.TryParse(TBFrameL.Text, out double frameL)
-                && frameL <= 0)
+            if (!double.TryParse(TBFrameL.Text, out double frameL)
+                || frameL < 0)
                 TBFrameL.Text = "12";
         }
 
         private void TBFrameR_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (double.TryParse(TBFrameR.Text, out double frameR)
-                && frameR <= 0)
+            if (!double.TryParse(TBFrameR.Text, out double frameR)
+                || frameR < 0)
                 TBFrameR.Text = "12";
         }
 
@@ -55,9 +55,9 @@ namespace FrameMark
 
         private void TBRoundCorner_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (double.TryParse(TBRoundCorner.Text, out double roundCorner)
-                && (roundCorner > 100
-                || roundCorner < 0))
+            if (!double.TryParse(TBRoundCorner.Text, out double roundCorner)
+                || roundCorner > 100
+                || roundCorner < 0)
                 TBRoundCorner.Text = "18";
         }
 
@@ -67,9 +67,9 @@ namespace FrameMark
 
         private void TBBlurRatio_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (double.TryParse(TBBlurRatio.Text, out double blurRatio)
-                && (blurRatio > 1
-                || blurRatio <= 0))
+            if (!double.TryParse(TBBlurRatio.Text, out double blurRatio)
+                || blurRatio > 1
+                || blurRatio <= 0)
                 TBBlurRatio.Text = "0.01";
         }
 

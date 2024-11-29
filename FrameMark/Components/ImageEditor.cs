@@ -18,7 +18,9 @@ namespace FrameMark.Components
                     if (!File.Exists(path))
                         return;
                     using var image = new MagickImage(path);
-                    if (((uint)(blurRatio * image.Width)) == 0 || ((uint)(blurRatio * image.Height)) == 0)
+                    if (((uint)(blurRatio * image.Width)) == 0
+                        || ((uint)(blurRatio * image.Height)) == 0
+                        || ((uint)(frameB / 100 * image.Height)) == 0)
                         return;
                     var text = AggregateInfo(image, shutter, apertrue, iso, focalLen);
                     var bkg = GenerateBackground(image, frameT, frameB, frameL, frameR, blurRatio);
@@ -76,7 +78,8 @@ namespace FrameMark.Components
                 var parts = value.Split('/');
                 if (parts.Length != 2
                     || !uint.TryParse(parts[0], out var up)
-                    || !uint.TryParse(parts[1], out var down)) return value;
+                    || !uint.TryParse(parts[1], out var down))
+                    return value;
                 if (up > down) // 如果分子大，则直接插入小数点
                 {
                     var dotIndex = parts[0].Length - parts[1].Length + 1;
@@ -113,6 +116,7 @@ namespace FrameMark.Components
         /// <summary> 生成切去圆角的前景图 </summary>
         private static MagickImage GenerateForeground(MagickImage image, double rcRadius)
         {
+            if (rcRadius == 0) return image;
             var shortSide = Math.Min(image.Width, image.Height);
             var radius = rcRadius / 100 * shortSide;
             var mask = new MagickImage(new MagickColor(0, 0, 0, 0), image.Width, image.Height);
