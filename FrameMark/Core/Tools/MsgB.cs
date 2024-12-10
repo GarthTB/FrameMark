@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace FrameMark.Components.Tools
+namespace FrameMark.Core.Tools
 {
     /// <summary> 为简化代码，将MessageBox封装成一个类 </summary>
     internal static class MsgB

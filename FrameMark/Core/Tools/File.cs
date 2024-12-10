@@ -1,8 +1,7 @@
 ﻿using ImageMagick;
 using Microsoft.Win32;
-using System.Collections.Concurrent;
 
-namespace FrameMark.Components.Tools
+namespace FrameMark.Core.Tools
 {
     /// <summary> 涉及文件的操作 </summary>
     internal static class File
@@ -18,9 +17,7 @@ namespace FrameMark.Components.Tools
                 Multiselect = false,
                 Title = title,
             };
-
             path = ofd.ShowDialog() == true ? ofd.FileName : "";
-
             return path.Length > 0;
         }
 
@@ -35,9 +32,7 @@ namespace FrameMark.Components.Tools
                 Multiselect = true,
                 Title = title,
             };
-
             paths = ofd.ShowDialog() == true ? ofd.FileNames : [];
-
             return paths.Length > 0;
         }
 
@@ -46,31 +41,15 @@ namespace FrameMark.Components.Tools
         /// <returns> 是否为图片 </returns>
         internal static bool IsImage(string path)
         {
-            try
-            {
-                using var image = new MagickImage(path);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            try { return new MagickImage(path).Width > 0; }
+            catch { return false; }
+            finally { GC.Collect(); }
         }
 
         /// <summary> 过滤掉所有不是图片的文件 </summary>
         /// <param name="paths"> 文件路径 </param>
         /// <returns> 所有有效的图片文件路径 </returns>
         internal static string[] FilterImages(string[] paths)
-        {
-            ConcurrentBag<string> validPaths = [];
-
-            _ = Parallel.ForEach(paths, path =>
-            {
-                if (IsImage(path))
-                    validPaths.Add(path);
-            });
-
-            return [.. validPaths];
-        }
+            => [.. paths.AsParallel().Where(IsImage)];
     }
 }

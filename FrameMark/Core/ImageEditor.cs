@@ -2,7 +2,7 @@
 using ImageMagick.Drawing;
 using System.IO;
 
-namespace FrameMark.Components
+namespace FrameMark.Core
 {
     internal class ImageEditor(double frameT, double frameB, double frameL, double frameR,
                                double rcRadius, double blurRatio, string wmPath, string shutter,
