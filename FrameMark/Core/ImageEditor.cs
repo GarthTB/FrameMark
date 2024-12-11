@@ -27,18 +27,22 @@ namespace FrameMark.Core
                 {
                     if (!File.Exists(path))
                         return;
+
                     using var image = new MagickImage(path);
                     var info = ImageHelpers.CollectInfo(image, shutter, apertrue, iso, focalLen);
-                    var bkg = ImageHelpers.GenBkg(image, frameT, frameB, frameL, frameR, blurRatio);
-                    var fg = rcRadius == 0 ? image : ImageHelpers.GenFg(image, rcRadius);
-                    var bkgWithWm = ImageHelpers.AddWm(image, bkg, wmPath, info, frameB);
-                    var mixed = ImageHelpers.Mix(bkgWithWm, fg, frameT, frameL);
-                    ImageHelpers.Output(mixed, path, outType);
+                    if (rcRadius > 0)
+                        ImageHelpers.RoundCorner(image, rcRadius);
+
+                    image.GenBkg(frameT, frameB, frameL, frameR, blurRatio)
+                         .AddWm(image, wmPath, info, frameB)
+                         .Mix(image, frameT, frameL)
+                         .Output(path, outType);
+
                     _ = Interlocked.Increment(ref successCount);
                 });
-                if (successCount == filePaths.Length)
-                    Tools.MsgB.OkInfo($"{filePaths.Length}张图片全部处理完成", "提示");
-                else Tools.MsgB.OkInfo($"{successCount}张图片处理完成，{filePaths.Length - successCount}张图片未处理", "提示");
+                Tools.MsgB.OkInfo(successCount == filePaths.Length
+                    ? $"{filePaths.Length}张图片全部处理完成"
+                    : $"{successCount}张图片处理完成，{filePaths.Length - successCount}张图片未处理", "提示");
             }
             catch (Exception e)
             {

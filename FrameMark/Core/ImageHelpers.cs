@@ -6,14 +6,14 @@ namespace FrameMark.Core
 {
     internal static class ImageHelpers
     {
-        /// <summary> 连接照片信息 </summary>
+        /// <summary> 收集照片信息 </summary>
         internal static string CollectInfo(MagickImage image, string shutter, string apertrue, string iso, string focalLen)
         {
             var exif = image.GetExifProfile();
             var s = Normalize(exif?.GetValue(ExifTag.ExposureTime)?.Value.ToString()) ?? shutter;
             var a = ConvertFraction(exif?.GetValue(ExifTag.FNumber)?.Value.ToString()) ?? apertrue;
             var i = exif?.GetValue(ExifTag.ISOSpeed)?.Value.ToString() ?? iso;
-            var f = exif?.GetValue(ExifTag.FocalLengthIn35mmFilm)?.ToString()
+            var f = ConvertFraction(exif?.GetValue(ExifTag.FocalLengthIn35mmFilm)?.ToString())
                 ?? ConvertFraction(exif?.GetValue(ExifTag.FocalLength)?.Value.ToString())
                 ?? focalLen;
 
@@ -59,19 +59,24 @@ namespace FrameMark.Core
             }
         }
 
-        /// <summary> 前景与背景融合 </summary>
-        internal static IMagickImage Mix(IMagickImage bkg, MagickImage fg, double frameT, double frameL)
+        /// <summary> 给图像切去圆角 </summary>
+        internal static void RoundCorner(MagickImage image, double rcRadius)
         {
-            var xOffset = frameL / 100 * fg.Width;
-            var yOffset = frameT / 100 * fg.Height;
-            bkg.Composite(fg, (int)xOffset, (int)yOffset, CompositeOperator.Over);
-            return bkg;
+            if (rcRadius == 0) return;
+            var r = rcRadius / 100 * Math.Min(image.Width, image.Height);
+            var mask = new MagickImage(new MagickColor(0, 0, 0, 0), image.Width, image.Height);
+            mask.Settings.FillColor = MagickColors.White;
+            mask.Draw(new DrawableRoundRectangle(0, 0, image.Width, image.Height, r, r));
+            mask.GaussianBlur(0.5); // 去锯齿
+            image.Alpha(AlphaOption.Set);
+            image.Composite(mask, CompositeOperator.CopyAlpha);
         }
 
         /// <summary> 生成模糊且变暗的背景图 </summary>
-        internal static IMagickImage GenBkg(MagickImage image, double frameT, double frameB, double frameL, double frameR, double blurRatio)
+        internal static IMagickImage GenBkg(this MagickImage image, double frameT, double frameB, double frameL, double frameR, double blurRatio)
         {
             var bkg = image.Clone();
+            bkg.FilterType = FilterType.Mitchell;
             var geometry = new MagickGeometry() { IgnoreAspectRatio = true };
             if (blurRatio != 1)
             {
@@ -90,23 +95,8 @@ namespace FrameMark.Core
             return bkg;
         }
 
-        /// <summary> 生成切去圆角的前景图 </summary>
-        internal static MagickImage GenFg(MagickImage image, double rcRadius)
-        {
-            if (rcRadius == 0) return image;
-            var shortSide = Math.Min(image.Width, image.Height);
-            var radius = rcRadius / 100 * shortSide;
-            var mask = new MagickImage(new MagickColor(0, 0, 0, 0), image.Width, image.Height);
-            mask.Settings.FillColor = MagickColors.White;
-            mask.Draw(new DrawableRoundRectangle(0, 0, image.Width, image.Height, radius, radius));
-            mask.Blur(0.5, 0.5); // 去锯齿
-            image.Alpha(AlphaOption.Set);
-            image.Composite(mask, CompositeOperator.CopyAlpha);
-            return image;
-        }
-
         /// <summary> 在背景图上添加水印 </summary>
-        internal static IMagickImage AddWm(MagickImage image, IMagickImage bkg, string wmPath, string text, double frameB)
+        internal static IMagickImage AddWm(this IMagickImage bkg, MagickImage image, string wmPath, string text, double frameB)
         {
             // 字体像素高度为底框高度的0.24倍
             var fontPoint = (uint)(0.24 * frameB / 100 * image.Height);
@@ -140,12 +130,20 @@ namespace FrameMark.Core
             return bkg;
         }
 
+        /// <summary> 前景与背景融合 </summary>
+        internal static IMagickImage Mix(this IMagickImage bkg, MagickImage fg, double frameT, double frameL)
+        {
+            var x = frameL / 100 * fg.Width;
+            var y = frameT / 100 * fg.Height;
+            bkg.Composite(fg, (int)x, (int)y, CompositeOperator.Over);
+            return bkg;
+        }
+
         /// <summary> 输出为指定格式 </summary>
-        internal static void Output(IMagickImage image, string path, string format)
+        internal static void Output(this IMagickImage image, string path, string format)
         {
             image.Quality = 100;
-            string newPath = Reformat(image, format);
-            image.Write(newPath);
+            image.Write(Reformat(image, format));
 
             string Rename(string ext)
             {

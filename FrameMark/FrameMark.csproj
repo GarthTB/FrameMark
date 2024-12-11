@@ -9,13 +9,13 @@
     <StartupObject>FrameMark.App</StartupObject>
     <ApplicationIcon>Icons\favicon.ico</ApplicationIcon>
     <PackageId>FrameMark</PackageId>
+    <PackageIcon>icon.png</PackageIcon>
     <Title>FrameMark</Title>
     <Product>FrameMark</Product>
     <Version>0.5.0</Version>
     <Authors>GarthTB</Authors>
     <Company>GarthTB</Company>
-    <Copyright>© GarthTB 2024</Copyright>
-    <PackageIcon>icon.png</PackageIcon>
+    <Copyright>Copyright © 2024 GarthTB. All rights reserved.</Copyright>
     <Description>一个给图片加边框和水印的工具</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
