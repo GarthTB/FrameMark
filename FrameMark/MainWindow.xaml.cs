@@ -111,15 +111,23 @@ namespace FrameMark
         private void BtAddFile_Click(object sender, RoutedEventArgs e)
         {
             if (Core.Tools.File.MultiPick("选择要处理的图片文件", out var paths))
-            {
-                var imagePaths = Core.Tools.File.FilterImages(paths);
-                if (imagePaths.Length == 0) return;
-                foreach (var path in imagePaths)
-                    _ = LBFiles.Items.Add(path);
-                if (paths.Length > imagePaths.Length)
-                    Core.Tools.MsgB.OkInfo($"选择的{paths.Length}个文件中包含{paths.Length - imagePaths.Length}个非图片文件，已忽略。", "提示");
-                BtRun.IsEnabled = true;
-            }
+                AddFiles2List(paths);
+        }
+
+        private void LBFiles_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                AddFiles2List((string[])e.Data.GetData(DataFormats.FileDrop));
+        }
+
+        private void AddFiles2List(string[] paths)
+        {
+            var imagePaths = Core.Tools.File.FilterImages(paths);
+            foreach (var path in imagePaths)
+                _ = LBFiles.Items.Add(path);
+            if (paths.Length > imagePaths.Length)
+                Core.Tools.MsgB.OkInfo($"选择的{paths.Length}个文件中包含{paths.Length - imagePaths.Length}个非图片文件，已忽略。", "提示");
+            BtRun.IsEnabled = true;
         }
 
         private void LBFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -127,7 +135,7 @@ namespace FrameMark
 
         private void BtRemoveFile_Click(object sender, RoutedEventArgs e)
         {
-            var items = LBFiles.SelectedItems.Cast<string>();
+            var items = LBFiles.SelectedItems.Cast<string>().ToArray();
             foreach (var item in items)
                 LBFiles.Items.Remove(item);
             BtRun.IsEnabled = LBFiles.Items.Count > 0;

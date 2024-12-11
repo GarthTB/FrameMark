@@ -29,14 +29,14 @@ namespace FrameMark.Core
                         return;
 
                     using var image = new MagickImage(path);
-                    var info = ImageHelpers.CollectInfo(image, shutter, apertrue, iso, focalLen);
+                    using var bkg = image.GenBkg(frameT, frameB, frameL, frameR, blurRatio);
                     if (rcRadius > 0)
                         ImageHelpers.RoundCorner(image, rcRadius);
+                    var info = ImageHelpers.CollectInfo(image, shutter, apertrue, iso, focalLen);
 
-                    image.GenBkg(frameT, frameB, frameL, frameR, blurRatio)
-                         .AddWm(image, wmPath, info, frameB)
-                         .Mix(image, frameT, frameL)
-                         .Output(path, outType);
+                    bkg.AddWm(image, wmPath, info, frameB);
+                    bkg.Mix(image, frameT, frameL);
+                    bkg.Output(path, outType);
 
                     _ = Interlocked.Increment(ref successCount);
                 });

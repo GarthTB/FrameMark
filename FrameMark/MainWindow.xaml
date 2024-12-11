@@ -9,6 +9,7 @@
     Width="520"
     Height="404"
     mc:Ignorable="d"
+    AllowDrop="True"
     FontSize="16"
     KeyDown="MW_KeyDown"
     SizeToContent="WidthAndHeight"
@@ -248,6 +249,7 @@
                 x:Name="LBFiles"
                 Grid.Row ="0"
                 Margin="0,13,14,0"
+                Drop="LBFiles_Drop"
                 SelectionChanged="LBFiles_SelectionChanged"
                 SelectionMode="Multiple" />
             <Grid Grid.Row="1">

@@ -6,6 +6,42 @@ namespace FrameMark.Core
 {
     internal static class ImageHelpers
     {
+        /// <summary> 生成模糊且变暗的背景图 </summary>
+        internal static IMagickImage GenBkg(this MagickImage image, double frameT, double frameB, double frameL, double frameR, double blurRatio)
+        {
+            var bkg = image.Clone();
+            var geometry = new MagickGeometry() { IgnoreAspectRatio = true };
+            bkg.FilterType = FilterType.CubicSpline;
+            if (blurRatio != 1)
+            {
+                geometry.Width = (uint)(blurRatio * image.Width);
+                geometry.Height = (uint)(blurRatio * image.Height);
+                if (geometry.Width * geometry.Height == 0)
+                    geometry.Width = geometry.Height = 1;
+                bkg.Resize(geometry);
+            }
+
+            geometry.Width = (uint)((frameL + frameR + 100) / 100 * image.Width);
+            geometry.Height = (uint)((frameT + frameB + 100) / 100 * image.Height);
+            bkg.Resize(geometry);
+
+            bkg.Evaluate(Channels.All, EvaluateOperator.Multiply, 0.618);
+            return bkg;
+        }
+
+        /// <summary> 给图像切去圆角 </summary>
+        internal static void RoundCorner(MagickImage image, double rcRadius)
+        {
+            if (rcRadius == 0) return;
+            var r = rcRadius / 100 * Math.Min(image.Width, image.Height);
+            var mask = new MagickImage(new MagickColor(0, 0, 0, 0), image.Width, image.Height);
+            mask.Settings.FillColor = MagickColors.White;
+            mask.Draw(new DrawableRoundRectangle(0, 0, image.Width, image.Height, r, r));
+            mask.GaussianBlur(0.5, 0.5); // 去锯齿
+            image.Alpha(AlphaOption.Set);
+            image.Composite(mask, CompositeOperator.CopyAlpha);
+        }
+
         /// <summary> 收集照片信息 </summary>
         internal static string CollectInfo(MagickImage image, string shutter, string apertrue, string iso, string focalLen)
         {
@@ -59,44 +95,8 @@ namespace FrameMark.Core
             }
         }
 
-        /// <summary> 给图像切去圆角 </summary>
-        internal static void RoundCorner(MagickImage image, double rcRadius)
-        {
-            if (rcRadius == 0) return;
-            var r = rcRadius / 100 * Math.Min(image.Width, image.Height);
-            var mask = new MagickImage(new MagickColor(0, 0, 0, 0), image.Width, image.Height);
-            mask.Settings.FillColor = MagickColors.White;
-            mask.Draw(new DrawableRoundRectangle(0, 0, image.Width, image.Height, r, r));
-            mask.GaussianBlur(0.5); // 去锯齿
-            image.Alpha(AlphaOption.Set);
-            image.Composite(mask, CompositeOperator.CopyAlpha);
-        }
-
-        /// <summary> 生成模糊且变暗的背景图 </summary>
-        internal static IMagickImage GenBkg(this MagickImage image, double frameT, double frameB, double frameL, double frameR, double blurRatio)
-        {
-            var bkg = image.Clone();
-            bkg.FilterType = FilterType.Mitchell;
-            var geometry = new MagickGeometry() { IgnoreAspectRatio = true };
-            if (blurRatio != 1)
-            {
-                geometry.Width = (uint)(blurRatio * image.Width);
-                geometry.Height = (uint)(blurRatio * image.Height);
-                if (geometry.Width * geometry.Height == 0)
-                    geometry.Width = geometry.Height = 1;
-                bkg.Resize(geometry);
-            }
-
-            geometry.Width = (uint)((frameL + frameR + 100) / 100 * image.Width);
-            geometry.Height = (uint)((frameT + frameB + 100) / 100 * image.Height);
-            bkg.Resize(geometry);
-
-            bkg.Evaluate(Channels.All, EvaluateOperator.Multiply, 0.618);
-            return bkg;
-        }
-
         /// <summary> 在背景图上添加水印 </summary>
-        internal static IMagickImage AddWm(this IMagickImage bkg, MagickImage image, string wmPath, string text, double frameB)
+        internal static void AddWm(this IMagickImage bkg, MagickImage image, string wmPath, string text, double frameB)
         {
             // 字体像素高度为底框高度的0.24倍
             var fontPoint = (uint)(0.24 * frameB / 100 * image.Height);
@@ -127,16 +127,14 @@ namespace FrameMark.Core
                 .StrokeWidth(fontPoint * 0.008)
                 .Text(xOffset + (wm?.Width ?? 0) + textHeight * 0.618, yOffset + textHeight * 0.8, text);
             _ = drawables.Draw((IMagickImage<float>)bkg);
-            return bkg;
         }
 
         /// <summary> 前景与背景融合 </summary>
-        internal static IMagickImage Mix(this IMagickImage bkg, MagickImage fg, double frameT, double frameL)
+        internal static void Mix(this IMagickImage bkg, MagickImage fg, double frameT, double frameL)
         {
             var x = frameL / 100 * fg.Width;
             var y = frameT / 100 * fg.Height;
             bkg.Composite(fg, (int)x, (int)y, CompositeOperator.Over);
-            return bkg;
         }
 
         /// <summary> 输出为指定格式 </summary>
@@ -144,21 +142,6 @@ namespace FrameMark.Core
         {
             image.Quality = 100;
             image.Write(Reformat(image, format));
-
-            string Rename(string ext)
-            {
-                FileInfo fi = new(path);
-                var dir = fi.Directory?.FullName ?? throw new Exception("获取目录失败");
-                var name = Path.GetFileNameWithoutExtension(path);
-                var newName = $"{name}_水印.{ext}";
-                var newPath = Path.Combine(dir, newName);
-                for (int i = 2; File.Exists(newPath); i++)
-                {
-                    newName = $"{name}_水印({i}).{ext}";
-                    newPath = Path.Combine(dir, newName);
-                }
-                return newPath;
-            }
 
             string Reformat(IMagickImage image, string format)
             {
@@ -179,6 +162,21 @@ namespace FrameMark.Core
                     default:
                         throw new Exception("不支持的格式");
                 }
+            }
+
+            string Rename(string ext)
+            {
+                FileInfo fi = new(path);
+                var dir = fi.Directory?.FullName ?? throw new Exception("获取目录失败");
+                var name = Path.GetFileNameWithoutExtension(path);
+                var newName = $"{name}_水印.{ext}";
+                var newPath = Path.Combine(dir, newName);
+                for (int i = 2; File.Exists(newPath); i++)
+                {
+                    newName = $"{name}_水印({i}).{ext}";
+                    newPath = Path.Combine(dir, newName);
+                }
+                return newPath;
             }
         }
     }
