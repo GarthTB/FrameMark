@@ -1,6 +1,6 @@
 # [图片边框与水印工具](https://github.com/GarthTB/FrameMark)
 
-一个给图片加边框和水印的工具
+## 20250507 程序的主要功能已迁移至 [FrameSeal](https://github.com/GarthTB/FrameSeal) 。本项目不再维护。
 
 ## 功能
 
